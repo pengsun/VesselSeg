@@ -1,4 +1,4 @@
-function tr_win_seg()
+function tr_win_tmp3()
 %% init dag: from file
 beg_epoch = 201;
 dir_mo = fullfile('mo_zoo/seg');

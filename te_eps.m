@@ -3,10 +3,10 @@ function [err_ep, err] =  te_eps(varargin)
 % config 
 % TODO: add more properties here
 if ( nargin==0 )
-  ep = 500 : 500;
-  batch_sz = 64;
-  dir_mo = fullfile('.\');
-  fn_data = fullfile('C:\Dev\code\VesselSeg\tmp3.mat');
+  ep = 501 : 700;
+  batch_sz = 512;
+  dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\tmp4_over_tmp3');
+  fn_data = fullfile('C:\Temp\slices2.mat');
   fn_mo_tmpl = 'ep_%d.mat';
 elseif ( nargin==5 )
   ep = varargin{1};
@@ -19,17 +19,16 @@ else
 end
 
 % load data
+fprintf('loading %s...', fn_data);
 te_bdg = load_te_data(fn_data, batch_sz);
-
-% print
-fprintf('data: %s\n', fn_data);
+fprintf('done\n');
 
 % plot
 err_ep = 0;
 err = 1;
 figure;
 hax = axes;
-title(dir_mo);
+title(dir_mo, 'Interpreter','none');
 plot_err(hax, err_ep, err);
 
 for i = 1 : numel(ep)
