@@ -1,3 +1,4 @@
 *.mat
 *.mha
 /*.vtk
+setup_this.m
