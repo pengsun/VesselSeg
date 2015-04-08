@@ -3,9 +3,9 @@ function [err_ep, err] =  te_eps(varargin)
 % config 
 % TODO: add more properties here
 if ( nargin==0 )
-  ep = 501 : 700;
+  ep = 844 : 900;
   batch_sz = 512;
-  dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\tmp4_over_tmp3');
+  dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\slices2_over_tmp4_over_tmp3');
   fn_data = fullfile('C:\Temp\slices2.mat');
   fn_mo_tmpl = 'ep_%d.mat';
 elseif ( nargin==5 )
@@ -28,7 +28,6 @@ err_ep = 0;
 err = 1;
 figure;
 hax = axes;
-title(dir_mo, 'Interpreter','none');
 plot_err(hax, err_ep, err);
 
 for i = 1 : numel(ep)
@@ -49,13 +48,13 @@ for i = 1 : numel(ep)
   err(1+i) = get_cls_err(Ypre, te_bdg.Y);
   err_ep = [err_ep, ep(i)];
   plot_err(hax, err_ep, err)
-  legend({fn_mo}, 'Interpreter','none' )
+  legend({ffn_mo}, 'Interpreter','none' )
   
   % print the error
   fprintf('model: %s\n', fn_mo);
   fprintf('classification error = %d\n', err(end) );
 end
-title(fn_data);
+title(fn_data, 'Interpreter','none');
 
 
 function te_bdg = load_te_data(fn_data, bs)

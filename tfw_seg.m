@@ -96,7 +96,8 @@ classdef tfw_seg < tfw_i
         ob.ab.sync();
       end
       
-      %%% Internal Input --> Outer Input: unnecessary here
+      %%% Internal Input --> Outer Input: just the input 1, the image
+      ob.i(1).d = ob.tfs{1}.i.d; % bat_X
     end % bprop
     
     % helper
