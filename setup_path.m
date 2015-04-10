@@ -12,8 +12,8 @@ cd(tmp);
 % root
 dir_this = fileparts( mfilename('fullpath') );
 addpath( pwd );
-% % util
-% addpath( fullfile(pwd, 'util') );
+% util
+addpath( fullfile(pwd, 'util') );
 % % cache
 % addpath( fullfile(pwd, 'cache') );
 % % mex

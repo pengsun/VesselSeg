@@ -4,7 +4,7 @@ batch_sz = 1024;
 dir_mo = 'D:\CodeWork\git\VesselSeg\mo_zoo';
 fn_mo = fullfile(dir_mo, '\slices2_over_tmp4_over_tmp3\ep_900.mat');
 % instances, labels...
-name     = '02-001-C-O';
+name     = '03-007-GCS';
 dir_name = fullfile('D:\data\defactoSeg\', name);
 fn_mha   = fullfile(dir_name, 't.mha');        % the CT volume
 fn_fg    = fullfile(dir_name, 'maskv3.mha');   % the fore-ground
@@ -27,6 +27,14 @@ fprintf('data\n');
 fprintf('loading model %s...', fn_mo);
 load(fn_mo);
 fprintf('done\n');
+
+%%% statistics
+tmp = (te_bdg.mk_fgbg > 0);
+fprintf('# mask pixels = %d\n', sum( tmp(:) ) );
+tmp = (te_bdg.mk_fgbg == 255);
+fprintf('# foreground mask pixels = %d\n', sum( tmp(:) ) );
+tmp = (te_bdg.mk_fgbg == 128);
+fprintf('# background mask pixels = %d\n', sum( tmp(:) ) );
   
 
 %%% do the job: testing it
