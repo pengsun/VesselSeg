@@ -3,7 +3,7 @@ function [err_ep, err] =  te_eps(varargin)
 % config 
 % TODO: add more properties here
 if ( nargin==0 )
-  ep = 844 : 900;
+  ep = 890 : 900;
   batch_sz = 512;
   dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\slices2_over_tmp4_over_tmp3');
   fn_data = fullfile('C:\Temp\slices2.mat');
@@ -25,10 +25,11 @@ fprintf('done\n');
 
 % plot
 err_ep = 0;
-err = 1;
+[err, err_bg, err_fg] = deal(1);
 figure;
 hax = axes;
-plot_err(hax, err_ep, err);
+% plot_err(hax, err_ep, err, 'ro-');
+% plot_err(hax, err_ep, err_fg, 'bx-');
 
 for i = 1 : numel(ep)
   % init dag: from file 
@@ -45,15 +46,22 @@ for i = 1 : numel(ep)
   Ypre = gather(Ypre);
 
   % show the error
-  err(1+i) = get_cls_err(Ypre, te_bdg.Y);
+  [err(1+i), err_bg(1+i), err_fg(1+i)] = get_cls_err(Ypre, te_bdg.Y);
+  %
   err_ep = [err_ep, ep(i)];
-  plot_err(hax, err_ep, err)
-  legend({ffn_mo}, 'Interpreter','none' )
+  plot_err(hax, err_ep(2:end), err(2:end), 'ro-');
+  hold on;
+  plot_err(hax, err_ep(2:end), err_bg(2:end), 'm*-');
+  plot_err(hax, err_ep(2:end), err_fg(2:end), 'bx-');
+  hold off;
   
   % print the error
   fprintf('model: %s\n', fn_mo);
   fprintf('classification error = %d\n', err(end) );
+  fprintf('background misclassification rate = %d\n', err_bg(end) );
+  fprintf('foreground misclassification rate = %d\n', err_fg(end) );
 end
+legend( {'err', 'fg err', 'bg err'}, 'Interpreter','none' );
 title(fn_data, 'Interpreter','none');
 
 
@@ -66,14 +74,9 @@ yy = Y(:, ind_te);
 
 te_bdg = bdg_memXd4Yd2(xx,yy, bs);
 
-function err = get_cls_err(Ypre, Y)
-[~, label_pre] = max(Ypre,[], 1);
-[~, label]     = max(Y,[],    1);
-N = numel(label);
-err = sum( label_pre ~= label ) / N;
 
-function plot_err(hax, err_ep, err)
-plot(err_ep, err, 'ro-', 'linewidth', 2, 'parent', hax);
+function plot_err(hax, err_ep, err, sty)
+plot(err_ep, err, sty, 'linewidth', 2, 'parent', hax);
 xlabel('epoches');
 ylabel('testing classification error');
 % set(hax, 'yscale','log');
