@@ -1,7 +1,10 @@
-classdef bdg_mha < bdg_i
-  %BDG_MHA Batch Data Generator, load MHA and mask files
+classdef bdg_mha2 < bdg_i
+  %BDG_MHA2 Batch Data Generator version 2, load MHA and mask files
+  %   The instatces are 3 perpendicular planes:
   %   X: [48,48,3,N], ndims(X) = 4
-  %   Y: [2,N], each clumn, [1;0] is bg, [0;1] is fg 
+  %   The lables are 0/1 mask for the pre-specified points in the cube
+  %   Y: [K,N], each clumn is 1-hot response for the fg 
+  %
   
   properties
     mha;     % [a,b,c] the 3d CT volume
@@ -9,7 +12,7 @@ classdef bdg_mha < bdg_i
              % 255: vessels, 128: background, 0: not interested
     
     ix_fgbg; % [M] # fg+bg pixels index
-    
+    y_mode;  % string. 'g27s2': 27 points on grids, 2 pixels stride
     hb; % handle to a  bat_gentor
   end
   
@@ -20,8 +23,8 @@ classdef bdg_mha < bdg_i
   end
   
   methods % implement the bdg_i interfaces
-    function ob = bdg_mha (mha, mk_fg, mk_bg, bs)
-      %
+    function ob = bdg_mha2 (mha, mk_fg, mk_bg, bs, y_mode)
+      % checking
       assert( all(size(mha)==size(mk_fg)) );
       assert( all(size(mk_fg)==size(mk_bg)) );
       
@@ -38,7 +41,15 @@ classdef bdg_mha < bdg_i
       N = numel(ob.ix_fgbg);
       ob.hb = bat_gentor();
       ob.hb = reset(ob.hb, N,bs);
-    end 
+      
+      % label mode
+      if (nargin==4), ob.y_mode = 'g27s2';
+      else            ob.y_mode = y_mode; end
+      switch ob.y_mode
+        case 'g27s2', ob.h_get_ylabel = @get_labels_g27s2;
+        otherwise,    error('unknown y_mode.');
+      end % switch
+    end % bdg_mha2
     
     function ob = reset_epoch(ob)
     % reset for a new epoch
@@ -49,25 +60,16 @@ classdef bdg_mha < bdg_i
     
     function data = get_bd (ob, i_bat)
     % get the i_bat-th batch data
-      error('not implemented');
-      
-%       idx = get_idx(ob.hb, i_bat);
-%       data{1} = ob.X(:,:,:,idx);
-%       data{2} = ob.Y(:,idx);
+      % the instance index
+      idx = get_idx(ob.hb, i_bat);
+      data = get_bd_from_idx(ob, idx);
     end
     
     function data = get_bd_orig (ob, i_bat)
     % get the i_bat-th batch data
       % the instance index
       idx = get_idx_orig(ob.hb, i_bat);
-      % the fg, bg mask index: should never be out of boundary
-      ind_fgbg = ob.ix_fgbg(idx);
-      
-      % the instaces: X
-      X = get_3slices(ob.mha, ind_fgbg);
-      data{1} = restore_X(ob, X);
-      % the labels: Y
-      data{2} = get_labels(ob.mk_fgbg, ind_fgbg);
+      data = get_bd_from_idx(ob, idx);
     end
     
     function N = get_bdsz (ob, i_bat)
@@ -87,14 +89,26 @@ classdef bdg_mha < bdg_i
   end % methods
   
   methods % auxiliary, extra interfaces
+    function data = get_bd_from_idx (ob, idx)
+      % the fg, bg mask index: should never be out of boundary
+      ind_fgbg = ob.ix_fgbg(idx);
+      
+      % the instaces: X
+      X = get_3slices(ob.mha, ind_fgbg);
+      data{1} = restore_X(ob, X);
+      % the labels: Y
+      data{2} = ob.h_get_ylabel(ob.mk_fgbg, ind_fgbg);
+    end
     
     function Ygt = get_all_Ygt (ob)
-      Ygt = get_labels(ob.mk_fgbg, ob.ix_fgbg);
+      Ygt = ob.h_get_ylabel(ob.mk_fgbg, ob.ix_fgbg);
     end
     
     function xx = restore_X (ob, x)
+      % uint8 to float
       xx = single(x);
       
+      % do nothing further if unset
       if ( isempty(ob.xMean) || isempty(ob.vmin) || isempty(ob.vmax) )
         return;
       end
@@ -109,7 +123,3 @@ classdef bdg_mha < bdg_i
   end % auxiliary 
   
 end % bdg_mha
-
-function z = test(z)
-  z = z + 3;
-end
