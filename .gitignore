@@ -2,3 +2,4 @@
 *.mha
 /*.vtk
 setup_this.m
+*.asv

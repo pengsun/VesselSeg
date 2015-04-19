@@ -1,5 +1,9 @@
 classdef bdg_mha2 < bdg_i
   %BDG_MHA2 Batch Data Generator version 2, load MHA and mask files
+  %   Set function handles for how to get instances x and labels y
+  %
+  %   A typical senario:
+  %   ------------------
   %   The instatces are 3 perpendicular planes:
   %   X: [48,48,3,N], ndims(X) = 4
   %   The lables are 0/1 mask for the pre-specified points in the cube
@@ -10,9 +14,11 @@ classdef bdg_mha2 < bdg_i
     mha;     % [a,b,c] the 3d CT volume
     mk_fgbg; % [a,b,c] the mask:
              % 255: vessels, 128: background, 0: not interested
-    
     ix_fgbg; % [M] # fg+bg pixels index
-    y_mode;  % string. 'g27s2': 27 points on grids, 2 pixels stride
+    
+    h_get_x; % handle to how to get instances x
+    h_get_y; % handle to how to get labels y
+
     hb; % handle to a  bat_gentor
   end
   
@@ -23,7 +29,7 @@ classdef bdg_mha2 < bdg_i
   end
   
   methods % implement the bdg_i interfaces
-    function ob = bdg_mha2 (mha, mk_fg, mk_bg, bs, y_mode)
+    function ob = bdg_mha2 (mha, mk_fg, mk_bg, bs, h_get_x, h_get_y)
       % checking
       assert( all(size(mha)==size(mk_fg)) );
       assert( all(size(mk_fg)==size(mk_bg)) );
@@ -42,13 +48,9 @@ classdef bdg_mha2 < bdg_i
       ob.hb = bat_gentor();
       ob.hb = reset(ob.hb, N,bs);
       
-      % label mode
-      if (nargin==4), ob.y_mode = 'g27s2';
-      else            ob.y_mode = y_mode; end
-      switch ob.y_mode
-        case 'g27s2', ob.h_get_ylabel = @get_labels_g27s2;
-        otherwise,    error('unknown y_mode.');
-      end % switch
+      % how to get instances x and labels y
+      ob.h_get_x = h_get_x;
+      ob.h_get_y = h_get_y;
     end % bdg_mha2
     
     function ob = reset_epoch(ob)
@@ -94,10 +96,10 @@ classdef bdg_mha2 < bdg_i
       ind_fgbg = ob.ix_fgbg(idx);
       
       % the instaces: X
-      X = get_3slices(ob.mha, ind_fgbg);
+      X = ob.h_get_x(ob.mha, ind_fgbg);
       data{1} = restore_X(ob, X);
       % the labels: Y
-      data{2} = ob.h_get_ylabel(ob.mk_fgbg, ind_fgbg);
+      data{2} = ob.h_get_y(ob.mk_fgbg, ind_fgbg);
     end
     
     function Ygt = get_all_Ygt (ob)
@@ -122,4 +124,4 @@ classdef bdg_mha2 < bdg_i
     
   end % auxiliary 
   
-end % bdg_mha
+end % bdg_mha2
