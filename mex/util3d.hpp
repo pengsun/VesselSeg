@@ -36,9 +36,9 @@ inline void clap (const mwSize sz_mk[], int pnt[])
   }
 }
 
-template<typename val_T>
-inline void get_val_from_offset(val_T *p_mk, const mwSize sz_mk[], int pntcen[], int offset[],
-                                val_T &val)
+template<typename val_in_T, typename val_out_T>
+inline void get_val_from_offset(val_in_T *p_mk, const mwSize sz_mk[], int pntcen[], int offset[],
+                                val_out_T &val)
 {
   int pnt[3];
   cen_plus_offset(pntcen, offset, pnt);
@@ -47,7 +47,7 @@ inline void get_val_from_offset(val_T *p_mk, const mwSize sz_mk[], int pntcen[],
   int ix;
   pnt2ix(sz_mk, pnt, ix);
 
-  val = *(p_mk + ix);
+  val =  val_out_T( *(p_mk + ix) );
 }
 
 #endif // util3d_h__

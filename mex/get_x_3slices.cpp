@@ -25,7 +25,7 @@ void mexFunction(int no, mxArray       *vo[],
 
 
   //// do the job
-  float *p_img = (float*) mxGetData(img);
+  int16_T *p_img = (int16_T*) mxGetData(img);
   const mwSize *sz_img;
   sz_img = mxGetDimensions(img);
 
@@ -37,6 +37,7 @@ void mexFunction(int no, mxArray       *vo[],
   for (int m = 0; m < M; ++m) {
     // center index --> center point
     int ixcen = int( *(p_ind + m) );
+    ixcen -= 1; // Matlab 1 base -> C 0 base
     int pntcen[3];
     ix2pnt(sz_img, ixcen, pntcen);
     
@@ -50,7 +51,7 @@ void mexFunction(int no, mxArray       *vo[],
         for (int j = (-KK); j < KK; ++j) {
           // the working offset
           int d[3]; 
-          d[0] = i; d[1] = j; d[2] = pntcen[2];
+          d[0] = i; d[1] = j; d[2] = 0;
           // value on the image
           float val; 
           get_val_from_offset(p_img, sz_img, pntcen, d,  val);
@@ -68,7 +69,7 @@ void mexFunction(int no, mxArray       *vo[],
         for (int k = (-KK); k < KK; ++k) {
           // the working offset
           int d[3];
-          d[0] = pntcen[0]; d[1] = j; d[2] = k;
+          d[0] = 0; d[1] = j; d[2] = k;
           // value on the image
           float val;
           get_val_from_offset(p_img, sz_img, pntcen, d, val);
@@ -86,7 +87,7 @@ void mexFunction(int no, mxArray       *vo[],
         for (int k = (-KK); k < KK; ++k) {
           // the working offset
           int d[3];
-          d[0] = i; d[1] = pntcen[1]; d[2] = k;
+          d[0] = i; d[1] = 0; d[2] = k;
           // value on the image
           float val;
           get_val_from_offset(p_img, sz_img, pntcen, d, val);

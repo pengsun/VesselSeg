@@ -1,4 +1,4 @@
-classdef bdg_mhaInDir
+classdef bdg_mhaInDir < bdg_i
   %BDG_MHAINDIR Generate mha files in directory. A bdg_mhaxxx wrapper 
   %   Detailed explanation goes here
   
@@ -15,13 +15,19 @@ classdef bdg_mhaInDir
     h_bdg; % working bdg_mha2
   end
   
+  properties
+    xMean;
+    vmin;
+    vmax;
+  end
+  
   methods % implement the bdg_i interfaces
     function ob = bdg_mhaInDir(the_dir, names, bs, h_getx, h_gety, class_bdg)
       % initialize the file name list
       ob.tr_info = create_tr_info();
-      ob =  set_fns (the_dir, names);
+      ob = set_fns (ob, the_dir, names);
       % record
-      ob.bs     = bs;
+      ob.bs      = bs;
       ob.h_get_x = h_getx;
       ob.h_get_y = h_gety;
       % init
@@ -29,9 +35,14 @@ classdef bdg_mhaInDir
       ob.nb_per_mha = 16;
       % set internal bdg
       ob.class_bdg = class_bdg;
-      ob = set_working_bdg(ob, ob.cur_i_mha);
+      
       
     end % bdg_mhaInDir
+    
+    function ob = reset_epoch(ob)
+      ob = switch_to_batInMha(ob, 1);
+      ob.h_bdg = reset_epoch(ob.h_bdg);
+    end
     
     function data = get_bd(ob, i_bat)
       [ob, i_bat_in_mha] = switch_to_batInMha(ob, i_bat);
@@ -44,7 +55,7 @@ classdef bdg_mhaInDir
     
     function N = get_bdsz (ob, i_bat)
       [ob, i_bat_in_mha] = switch_to_batInMha(ob, i_bat);
-      N = get_bdsz(ob, i_bat_in_mha);
+      N = get_bdsz(ob.h_bdg, i_bat_in_mha);
     end % get_bdsz
     
     function nb = get_numbat (ob)
@@ -64,20 +75,30 @@ classdef bdg_mhaInDir
       
       if (i_mha ~= ob.cur_i_mha)
         ob = set_working_bdg(ob, i_mha);
+        ob.cur_i_mha = i_mha;
+        return;
+      end
+      
+      if ( isempty(ob.h_bdg) )
+        ob = set_working_bdg(ob, i_mha);
       end
     end % switch_to_batInMha
     
     function ob = set_working_bdg(ob, i_mha)
-      clear(ob.h_bdg);
+      clear ob.h_bdg;
       
       % create new
-      name = fileparts( fileparts( ob.tr_info(i_mha).fn_mha ) );
-      fprintf('loading new mha file %s...', name);
+      fprintf('loading new mha file %s...', ...
+              fileparts(ob.tr_info(i_mha).fn_mha) );
+      t = tic;
       mha   = mha_read_volume( ob.tr_info(i_mha).fn_mha );
       mk_fg = mha_read_volume( ob.tr_info(i_mha).fn_mk_fg );
       mk_bg = mha_read_volume( ob.tr_info(i_mha).fn_mk_bg );
-      ob.h_bdg = ob.class_bdg(mha, mk_fg, mk_bg, ob.bs, ob.y_mode);
-      fprintf('done\n');
+      ob.h_bdg = ob.class_bdg(mha, mk_fg, mk_bg, ...
+                              ob.bs, ...
+                              ob.h_get_x, ob.h_get_y);
+      t = toc(t);                      
+      fprintf('done. Time spent = %d seconds\n', t);
       
       % do nothing further if unset
       if ( isempty(ob.xMean) || isempty(ob.vmin) || isempty(ob.vmax) )
@@ -94,9 +115,10 @@ classdef bdg_mhaInDir
     %   .fn_mha, .fn_mk_fg and .fn_mk_bg
       for i = 1 : numel(names)
         nm = names{i};
-        ob.tr_info(i).fn_mha   = fullfile(the_dir, nm, 't.mha');
+        ob.tr_info(i).fn_mha   = fullfile(the_dir, nm, 'tu.mha');
         ob.tr_info(i).fn_mk_fg = fullfile(the_dir, nm, 'maskv3.mha');
-        ob.tr_info(i).fn_mk_bg = fullfile(the_dir, nm, 'maskb.mha');
+        % use the balanced bg mask!
+        ob.tr_info(i).fn_mk_bg = fullfile(the_dir, nm, 'maskbb.mha');
       end % for
     end % set_fns
     

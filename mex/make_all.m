@@ -1,7 +1,8 @@
 %% config
 opt = {};
-opt{end+1} = '-v';
 % opt{end+1} = '-g';
+opt{end+1} = '-v';
+opt{end+1} = '-largeArrayDims';
 
 str = computer('arch');
 switch str(1:3)

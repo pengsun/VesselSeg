@@ -1,7 +1,9 @@
 #include "mex.h"
 #include "util3d.hpp"
 
-static const int K = 27;
+static const int TMPL[3] = {-2, 0, 2}; // the offset template
+static const int num     = sizeof(TMPL)/sizeof(TMPL[0]);
+static const int K       = num * num * num;
 
 // yy = get_y_g27s2(mk, ind)
 //   mk: [a,b,c]. 255: vessels, 128: background, 0: not interested
@@ -39,21 +41,22 @@ void mexFunction(int no, mxArray       *vo[],
     int pntcen[3];
     ix2pnt(sz_mk, ixcen, pntcen);
 
+    // destination starting point
+    float *pp = p_yy + m*K; 
+
     // manually set the K (=27) points
-    int tmpl[3] = {-2, 0, 2}; // the offset template
-    int cnt = 0;              // count, 0,...,26
     for (int i = 0; i < 2; ++i) {
       for (int j = 0; j < 2; ++j) {
         for (int k = 0; k < 2; ++k) {
           // the working offset
           int d[3]; 
-          d[0] = tmpl[i]; d[1] = tmpl[j]; d[2] = tmpl[k];
+          d[0] = TMPL[i]; d[1] = TMPL[j]; d[2] = TMPL[k];
           // value on mask
           uint8_T val; 
           get_val_from_offset(p_mk, sz_mk, pntcen, d,  val);
           // the 
-          *(p_yy + cnt + m*K) = (val==255)? 1.0 : 0.0; // 255: fore ground, set 1; otherwise: set 0
-          ++cnt;
+          *pp = (val==255)? 1.0 : 0.0; // 255: fore ground, set 1; otherwise: set 0
+          ++pp;
         } // for k
       } // for j
     } // for i
