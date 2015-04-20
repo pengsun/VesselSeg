@@ -60,14 +60,14 @@ classdef bdg_mha2 < bdg_i
       ob.hb = reset(ob.hb, N,bs);
     end
     
-    function data = get_bd (ob, i_bat)
+    function [data, idx] = get_bd (ob, i_bat)
     % get the i_bat-th batch data
       % the instance index
       idx = get_idx(ob.hb, i_bat);
       data = get_bd_from_idx(ob, idx);
     end
     
-    function data = get_bd_orig (ob, i_bat)
+    function [data, idx] = get_bd_orig (ob, i_bat)
     % get the i_bat-th batch data
       % the instance index
       idx = get_idx_orig(ob.hb, i_bat);
@@ -103,7 +103,7 @@ classdef bdg_mha2 < bdg_i
     end
     
     function Ygt = get_all_Ygt (ob)
-      Ygt = ob.h_get_ylabel(ob.mk_fgbg, ob.ix_fgbg);
+      Ygt = ob.h_get_y(ob.mk_fgbg, ob.ix_fgbg);
     end
     
     function xx = restore_X (ob, x)

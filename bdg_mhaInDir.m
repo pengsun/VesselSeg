@@ -72,7 +72,7 @@ classdef bdg_mhaInDir
       
       % create new
       name = fileparts( fileparts( ob.tr_info(i_mha).fn_mha ) );
-      fprintf('loading new mha files %s...', name);
+      fprintf('loading new mha file %s...', name);
       mha   = mha_read_volume( ob.tr_info(i_mha).fn_mha );
       mk_fg = mha_read_volume( ob.tr_info(i_mha).fn_mk_fg );
       mk_bg = mha_read_volume( ob.tr_info(i_mha).fn_mk_bg );
@@ -93,7 +93,7 @@ classdef bdg_mhaInDir
     % for each tr_info(i), set
     %   .fn_mha, .fn_mk_fg and .fn_mk_bg
       for i = 1 : numel(names)
-        nm = names(i);
+        nm = names{i};
         ob.tr_info(i).fn_mha   = fullfile(the_dir, nm, 't.mha');
         ob.tr_info(i).fn_mk_fg = fullfile(the_dir, nm, 'maskv3.mha');
         ob.tr_info(i).fn_mk_bg = fullfile(the_dir, nm, 'maskb.mha');

@@ -16,5 +16,5 @@ addpath( pwd );
 addpath( fullfile(pwd, 'util') );
 % % cache
 % addpath( fullfile(pwd, 'cache') );
-% % mex
-% addpath( fullfile(pwd, 'mex') );
+% mex
+addpath( fullfile(pwd, 'mex') );

@@ -1,0 +1,1 @@
+scripts for training. X: 3 slices. Y: 27 points on grids, stride 2
