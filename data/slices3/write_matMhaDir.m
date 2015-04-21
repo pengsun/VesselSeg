@@ -38,11 +38,13 @@ for i = 1 : numel(trId)
   try 
     [xx, yy, ind] = gen_mat(fn_mha, fn_mk_fg, fn_mk_bg, K);
   catch
-    fprintf('error occured, skip this\n');
-    is_cont = ture;
+    is_cont = true;
   end
   
-  if (is_cont), continue; end
+  if (is_cont)
+    fprintf('error occured, skip this\n');
+    continue; 
+  end
   
   % preprocessing: to 0 mean, approximately [-1, +1]
   [xx, yy] = deal( single(xx), single(yy) );
