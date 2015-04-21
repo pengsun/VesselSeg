@@ -26,7 +26,7 @@ for i = 1 : numel(trId)
   if ( ~trId(i) ), continue; end
   
   nm = imgNames{i};
-  fprintf('processing %s...\n', nm);
+  fprintf('processing %s...', nm);
   
   % the mha 
   fn_mha   = fullfile(dir_root, nm, 'tu.mha');     % uncompressed volume
@@ -34,7 +34,15 @@ for i = 1 : numel(trId)
   fn_mk_bg = fullfile(dir_root, nm, 'maskbb.mha'); % balanced !
   
   % generate instance & labels
-  [xx, yy, ind] = gen_mat(fn_mha, fn_mk_fg, fn_mk_bg, K);
+  is_cont = false;
+  try 
+    [xx, yy, ind] = gen_mat(fn_mha, fn_mk_fg, fn_mk_bg, K);
+  catch
+    fprintf('error occured, skip this\n');
+    is_cont = ture;
+  end
+  
+  if (is_cont), continue; end
   
   % preprocessing: to 0 mean, approximately [-1, +1]
   [xx, yy] = deal( single(xx), single(yy) );
@@ -54,6 +62,7 @@ for i = 1 : numel(trId)
   % the point id
   pntId = [pntId(:); ind(:)];
   
+  fprintf('done\n');
 end
 
 % write to file
