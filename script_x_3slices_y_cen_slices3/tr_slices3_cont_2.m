@@ -1,6 +1,6 @@
-function tr_slices3_cont()
+function tr_slices3_cont_2()
 %% init dag: from file
-beg_epoch   = 900;
+beg_epoch   = 901;
 dir_root    = fileparts(fileparts( mfilename('fullpath') ));
 dir_mo      = fullfile(dir_root,'mo_zoo','slices3');
 dir_mo_from = fullfile(dir_root,'mo_zoo','slices2_over_tmp4_over_tmp3');
@@ -19,7 +19,7 @@ h.the_dag = to_gpu( h.the_dag );
 %% peek and do something (printing, plotting, saving, etc)
 hpeek = peek();
 % plot training loss
-addlistener(h, 'end_ep', @hpeek.plot_loss);
+% addlistener(h, 'end_ep', @hpeek.plot_loss);
 % save model
 hpeek.dir_mo = dir_mo;
 addlistener(h, 'end_ep', @hpeek.save_mo);
@@ -37,5 +37,5 @@ load(fn_mo, 'ob');
 % ob loaded and returned
 
 function tr_bdg = load_tr_data(dir_data, bs)
-matIds = 1 : 3;
+matIds = 1 : 10;
 tr_bdg = bdg_matInDir(dir_data, matIds, bs);
