@@ -69,5 +69,7 @@ end
 
 % write to file
 fprintf('writing %s...', fn_out);
-save(fn_out, 'X','Y', 'imgId', 'pntId');
+save(fn_out, ...
+  'X','Y', 'imgId', 'pntId',...
+  '-v7.3');
 fprintf('done\n');

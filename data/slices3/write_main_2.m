@@ -1,9 +1,12 @@
 %%
 Nmat = 10;
 K = 1000;
-fn_info = fullfile('D:\data\defactoSeg', 'info.mat');
+fn_info = fullfile('/home/ubuntu/A/data/defactoSeg', 'info.mat');
 %%
 dir_out = fileparts( mfilename('fullpath') );
+
+diary( [mfilename,'.mat'] );
+diary on;
 for i = 1 : Nmat
   fn_out = fullfile(dir_out, [num2str(i),'.mat'] );
   
@@ -11,3 +14,4 @@ for i = 1 : Nmat
   
   fprintf('done writing %s\n\n', fn_out);
 end
+diary off;
