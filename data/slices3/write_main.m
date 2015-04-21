@@ -1,7 +1,7 @@
 %%
 Nmat = 3;
-K = 100;
-fn_info = fullfile('D:\data\defactoSeg', 'info_small.mat');
+K = 200;
+fn_info = fullfile('D:\data\defactoSeg', 'info_med.mat');
 %%
 dir_out = fileparts( mfilename('fullpath') );
 for i = 1 : Nmat

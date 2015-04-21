@@ -6,7 +6,7 @@
 % i_inst = 153809;
 % y = Y(i_inst);
 %% vector label
-% load('3.mat');
+load('1.mat');
 % load('C:\Temp\slices2.mat');
 
 i_inst = randi(size(X,4), 1);

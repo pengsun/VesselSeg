@@ -49,7 +49,7 @@ for i = 1 : numel(trId)
   
   % the image id
   N = size(yy,2); assert(N==size(xx,4));
-  imgId = [imgId(:); i*ones(N,1)];
+  imgId = [imgId(:); ir(i)*ones(N,1)];
   
   % the point id
   pntId = [pntId(:); ind(:)];
