@@ -1,5 +1,5 @@
 classdef bdg_mha2 < bdg_i
-  %BDG_MHA2 Batch Data Generator version 2, load MHA and mask files
+  %BDG_MHA2 bdg_mha, pass in handle to get_x and get_y
   %   Set function handles for how to get instances x and labels y
   %
   %   A typical senario:

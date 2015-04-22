@@ -64,10 +64,10 @@ classdef bdg_mha < bdg_i
       ind_fgbg = ob.ix_fgbg(idx);
       
       % the instaces: X
-      X = get_3slices(ob.mha, ind_fgbg);
+      X = get_x_3slices(ob.mha, ind_fgbg);
       data{1} = restore_X(ob, X);
       % the labels: Y
-      data{2} = get_labels(ob.mk_fgbg, ind_fgbg);
+      data{2} = get_y_cen(ob.mk_fgbg, ind_fgbg);
       
 %       %the instaces: X
 %       X = get_3slices(ob.mha, ind_fgbg);

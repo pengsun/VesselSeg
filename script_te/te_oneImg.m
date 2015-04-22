@@ -2,7 +2,7 @@ function err =  te_oneImg(varargin)
 %%% config 
 batch_sz = 1024; 
 dir_mo = 'D:\CodeWork\git\VesselSeg\mo_zoo';
-fn_mo = fullfile(dir_mo, '\slices3_cont\ep_1050.mat');
+fn_mo = fullfile(dir_mo, '\slices3\ep_94.mat');
 % instances, labels...
 name     = '01-001-MAP';
 dir_name = fullfile('D:\data\defactoSeg\', name);
