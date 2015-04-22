@@ -9,7 +9,7 @@ fn_mo       = fullfile(dir_mo_from, sprintf('ep_%d.mat', beg_epoch-1) );
 h = create_dag_from_file (fn_mo);
 %% config
 h.beg_epoch = beg_epoch;
-h.num_epoch = 1000;
+h.num_epoch = 1050;
 batch_sz    = 256;
 dir_data    = fullfile(dir_root, 'data', 'slices3');
 
