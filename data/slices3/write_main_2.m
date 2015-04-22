@@ -8,7 +8,7 @@ dir_out = fileparts( mfilename('fullpath') );
 diary( [mfilename,'.mat'] );
 diary on;
 for i = 1 : Nmat
-  fn_out = fullfile(dir_out, [num2str(i),'.mat'] );
+  fn_out = fullfile(dir_out, [num2str(i),'.txt'] );
   
   write_matMhaDir( fn_info, K,  fn_out);
   

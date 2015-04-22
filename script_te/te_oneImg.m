@@ -2,9 +2,9 @@ function err =  te_oneImg(varargin)
 %%% config 
 batch_sz = 1024; 
 dir_mo = 'D:\CodeWork\git\VesselSeg\mo_zoo';
-fn_mo = fullfile(dir_mo, '\slices2_over_tmp4_over_tmp3\ep_900.mat');
+fn_mo = fullfile(dir_mo, '\slices3_cont\ep_1050.mat');
 % instances, labels...
-name     = '03-007-GCS';
+name     = '01-001-MAP';
 dir_name = fullfile('D:\data\defactoSeg\', name);
 fn_mha   = fullfile(dir_name, 't.mha');        % the CT volume
 fn_fg    = fullfile(dir_name, 'maskv3.mha');   % the fore-ground
@@ -52,7 +52,7 @@ fprintf('foreground misclassfication rate = %0.3f\n', err_two );
 
 %%% restore prediction to mask and wirte 
 out = get_pre_mask(Ypre, te_bdg);
-mha_write(fn_out, out, [1,1,1], 'uint8');
+mhawrite(fn_out, out, [1,1,1]);
 
 
 function te_bdg = load_te_data(fn_mha,fn_fg,fn_bg, batch_sz)

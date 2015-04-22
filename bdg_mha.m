@@ -68,6 +68,12 @@ classdef bdg_mha < bdg_i
       data{1} = restore_X(ob, X);
       % the labels: Y
       data{2} = get_labels(ob.mk_fgbg, ind_fgbg);
+      
+%       %the instaces: X
+%       X = get_3slices(ob.mha, ind_fgbg);
+%       data{1} = restore_X(ob, X);
+%       % the labels: Y
+%       data{2} = get_labels(ob.mk_fgbg, ind_fgbg);
     end
     
     function N = get_bdsz (ob, i_bat)

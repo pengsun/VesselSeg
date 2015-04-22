@@ -3,9 +3,10 @@ function [err_ep, err] =  te_eps(varargin)
 % config 
 % TODO: add more properties here
 if ( nargin==0 )
-  ep = 890 : 900;
-  batch_sz = 512;
-  dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\slices2_over_tmp4_over_tmp3');
+  ep = 901 : 1050;
+  batch_sz = 1024;
+%   dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\slices2_over_tmp4_over_tmp3');
+  dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\slices3_cont');
   fn_data = fullfile('C:\Temp\slices2.mat');
   fn_mo_tmpl = 'ep_%d.mat';
 elseif ( nargin==5 )
@@ -44,7 +45,7 @@ for i = 1 : numel(ep)
  
   Ypre = test(ob, te_bdg);
   Ypre = gather(Ypre);
-
+  
   % show the error
   [err(1+i), err_bg(1+i), err_fg(1+i)] = get_cls_err(Ypre, te_bdg.Y);
   %
