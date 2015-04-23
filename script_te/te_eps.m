@@ -3,7 +3,7 @@ function [err_ep, err] =  te_eps(varargin)
 % config 
 % TODO: add more properties here
 if ( nargin==0 )
-  ep = 135 : 5 : 222;
+  ep = 223 : 5 : 500;
   batch_sz = 1024;
 %   dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\slices2_over_tmp4_over_tmp3');
   dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\slices3');

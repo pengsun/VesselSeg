@@ -95,7 +95,7 @@ classdef bdg_mha < bdg_i
   methods % auxiliary, extra interfaces
     
     function Ygt = get_all_Ygt (ob)
-      Ygt = get_labels(ob.mk_fgbg, ob.ix_fgbg);
+      Ygt = get_y_cen(ob.mk_fgbg, ob.ix_fgbg);
     end
     
     function xx = restore_X (ob, x)

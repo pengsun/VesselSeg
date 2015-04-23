@@ -5,10 +5,10 @@ fn_info = fullfile('/home/ubuntu/A/data/defactoSeg', 'info.mat');
 %%
 dir_out = fileparts( mfilename('fullpath') );
 
-diary( [mfilename,'.mat'] );
+diary( [mfilename,'.txt'] );
 diary on;
 for i = 1 : Nmat
-  fn_out = fullfile(dir_out, [num2str(i),'.txt'] );
+  fn_out = fullfile(dir_out, [num2str(i),'.mat'] );
   
   write_matMhaDir( fn_info, K,  fn_out);
   

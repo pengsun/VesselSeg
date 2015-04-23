@@ -3,3 +3,4 @@
 /*.vtk
 setup_this.m
 *.asv
+*.mexw64
