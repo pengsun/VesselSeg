@@ -1,8 +1,8 @@
 %%
-Nmat = 100;
-K = 1000;
-fn_info = fullfile('/home/ubuntu/A/data/defactoSeg2', 'info.mat');
-% fn_info = fullfile('D:\data\defactoSeg2', 'info_med.mat');
+Nmat = 3;
+K = 567;
+% fn_info = fullfile('/home/ubuntu/A/data/defactoSeg2', 'info.mat');
+fn_info = fullfile('D:\data\defactoSeg2', 'info_med.mat');
 %%
 dir_out = fullfile(...
   fileparts(mfilename('fullpath')), '20M');

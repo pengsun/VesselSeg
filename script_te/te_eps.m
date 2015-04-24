@@ -3,11 +3,14 @@ function [err_ep, err] =  te_eps(varargin)
 % config 
 % TODO: add more properties here
 if ( nargin==0 )
-  ep = 223 : 5 : 500;
+  ep = 901 : 15 : 1050;
   batch_sz = 1024;
-%   dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\slices2_over_tmp4_over_tmp3');
-  dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\slices3');
-  fn_data = fullfile('C:\Temp\slices2.mat');
+  %dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\slices2_over_tmp4_over_tmp3');
+  %dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\slices3');
+  dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\slices3_cont');
+  
+  %fn_data = fullfile('C:\Temp\slices2.mat');
+  fn_data = fullfile('D:\CodeWork\git\VesselSeg\data\20M\te.mat');
   fn_mo_tmpl = 'ep_%d.mat';
 elseif ( nargin==5 )
   ep = varargin{1};
@@ -21,7 +24,7 @@ end
 
 % load data
 fprintf('loading %s...', fn_data);
-te_bdg = load_te_data(fn_data, batch_sz);
+te_bdg = load_te_data_all(fn_data, batch_sz);
 fprintf('done\n');
 
 % plot
@@ -75,6 +78,10 @@ yy = Y(:, ind_te);
 
 te_bdg = bdg_memXd4Yd2(xx,yy, bs);
 
+
+function te_bdg = load_te_data_all(fn_data, bs)
+load(fn_data, 'X','Y');
+te_bdg = bdg_memXd4Yd2(X,Y, bs);
 
 function plot_err(hax, err_ep, err, sty)
 plot(err_ep, err, sty, 'linewidth', 2, 'parent', hax);
