@@ -1,5 +1,5 @@
 classdef bdg_matInDir < bdg_i
-  %BDG_MATINDIR Summary of this class goes here
+  %BDG_MATINDIR BDG for mat files 1.mat,...,M.mat in directory
   %   Detailed explanation goes here
   
   properties
@@ -79,7 +79,6 @@ classdef bdg_matInDir < bdg_i
     end % move_toNextMat
     
   end % auxiliary 
-  
-  
+
 end
 
