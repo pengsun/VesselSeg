@@ -61,7 +61,7 @@ classdef bdg_matInDirAsync < bdg_i
       % 1,..,1, 2,..,2,...,N,...,N, where
       % each mat is repeated ob.nPerMat times
       
-      if ( ob.c_mat <= ob.nPerMat) % still use current mat
+      if ( ob.c_mat < ob.nPerMat) % still use current mat
         ob.c_mat = ob.c_mat + 1;
         return;
       end
