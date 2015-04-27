@@ -1,11 +1,12 @@
 #include "mex.h"
 #include "mat.h"
 #include <thread>
+#include <mutex>
 
 using namespace std;
 
 
-static thread worker;
+static thread  worker;
 static mxArray *X = 0;
 static mxArray *Y = 0;
 
@@ -29,36 +30,63 @@ void load_mat (const char * fn)
 
   // return immediately
   worker = move(t);
+
+  mexPrintf("Out load_mat\n");
 }
 
 void pop_buf (mxArray* &xx, mxArray* &yy) {
   mexPrintf("In pop_buf\n");
-  if (worker.joinable()) 
+
+  if (worker.joinable()) {
+    mexPrintf("wait until buffer filled\n");
     worker.join();
+  }
 
   // pop them
   mexPrintf("deep copy\n");
+
+  mutex mm;
+  mm.lock();
+
+  mexPrintf("copy X\n");
   xx = mxDuplicateArray(X);
+
+  mexPrintf("copy Y\n");
   yy = mxDuplicateArray(Y);
+
+  mm.unlock();
+
+  mexPrintf("Out pop_buf\n");
 }
 
 void clear_buf () 
 {
   mexPrintf("In clear_buf\n");
+
+  mutex mm;
+  mm.lock();
+
+  mexPrintf("clear X\n");
   mxDestroyArray(X);
+
+  mexPrintf("clear Y\n");
   mxDestroyArray(Y);
+  mm.unlock();
+
+  mexPrintf("Out clear_buf\n");
 }
 
 
 void read_X_Y (const char *fn) {
   mexPrintf("In read_X_Y\n");
   // TODO: need a lock here?
-
+  mutex mut;
+  mut.lock();
 
   mexPrintf("open mat\n");
   MATFile *h = matOpen(fn, "r");
 
-  mexPrintf("read X, Y\n");
+  mexPrintf("load X, Y from mat\n");
   X = matGetVariable(h, "X"); // TODO: check 
   Y = matGetVariable(h, "Y");
 
@@ -68,6 +96,9 @@ void read_X_Y (const char *fn) {
   mexPrintf("make persistence buffer X, Y\n");
   mexMakeArrayPersistent(X);
   mexMakeArrayPersistent(Y);
+
+  mut.unlock();
+  mexPrintf("Out read_X_Y\n");
 }
 
 void on_exit ()
@@ -76,6 +107,8 @@ void on_exit ()
 
   clear_buf();
   worker.~thread();
+
+  mexPrintf("Out on_exit\n");
 }
 
 
@@ -86,6 +119,8 @@ void mexFunction(int no, mxArray       *vo[],
 {
   // load_xy_async(fn_mat): load mat file and return immediately
   if (ni==1) {
+    mexPrintf("In ni==1\n");
+
     // get the file name 
     int buflen = mxGetN(vi[0])*sizeof(mxChar)+1;
     char *filename  = (char*)mxMalloc(buflen);
@@ -94,12 +129,18 @@ void mexFunction(int no, mxArray       *vo[],
     // begin loading and return 
     load_mat(filename);
     mexAtExit( on_exit );
+
+    mexPrintf("Out ni==1\n");
     return;
   }
 
   // [X,Y] = load_xy_async():  loads the X, Y from buffer
   if (ni==0) {
+    mexPrintf("In ni==0\n");
+
     pop_buf(vo[0], vo[1]);
+
+    mexPrintf("Out ni==0\n");
     return;
   }
 
