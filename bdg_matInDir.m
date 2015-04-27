@@ -18,7 +18,7 @@ classdef bdg_matInDir < bdg_i
       ob.matIds  = matIds;
       ob.bs      = bs;
       
-      ob.i_mat = 0;
+      ob.i_mat = numel(matIds);
     end
     
     function ob = reset_epoch(ob)
@@ -63,7 +63,8 @@ classdef bdg_matInDir < bdg_i
       end
       
       % load the corresponding mat file
-      fn_mat = [num2str(ob.i_mat),'.mat'];
+      tmp_ix  = ob.matIds(ob.i_mat);
+      fn_mat  = sprintf('%d.mat', tmp_ix);
       ffn_mat = fullfile( ob.dir_mat, fn_mat );
       fprintf('loading new mat %s...', ffn_mat);
       

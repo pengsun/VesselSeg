@@ -116,6 +116,3 @@ classdef bdg_mha < bdg_i
   
 end % bdg_mha
 
-function z = test(z)
-  z = z + 3;
-end

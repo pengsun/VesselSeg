@@ -3,11 +3,12 @@ function [err_ep, err] =  te_eps(varargin)
 % config 
 % TODO: add more properties here
 if ( nargin==0 )
-  ep = 901 : 15 : 1050;
+  ep = 1 : 2 : 18;
   batch_sz = 1024;
   %dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\slices2_over_tmp4_over_tmp3');
   %dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\slices3');
-  dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\slices3_cont');
+  %dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\slices3_cont');
+  dir_mo = fullfile('D:\CodeWork\git\VesselSeg\mo_zoo\20M');
   
   %fn_data = fullfile('C:\Temp\slices2.mat');
   fn_data = fullfile('D:\CodeWork\git\VesselSeg\data\20M\te.mat');
