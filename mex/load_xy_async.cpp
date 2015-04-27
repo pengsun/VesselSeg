@@ -134,7 +134,7 @@ void on_exit ()
   LOGMSG("In on_exit\n");
 
   if (worker.joinable()) {
-    LOGMSG("wait untial last reading done\n");
+    LOGMSG("wait until last reading done\n");
     worker.join();
   }
 

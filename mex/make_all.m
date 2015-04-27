@@ -1,6 +1,6 @@
 %% config
 opt = {};
-% opt{end+1} = '-g';
+opt{end+1} = '-g';
 opt{end+1} = '-v';
 opt{end+1} = '-largeArrayDims';
 opt{end+1} = '-DVB';
