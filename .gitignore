@@ -4,3 +4,4 @@
 setup_this.m
 *.asv
 *.mexw64
+*.pdb

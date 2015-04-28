@@ -1,10 +1,14 @@
 #include "mex.h"
 #include "mat.h"
+
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 
 using namespace std;
 
+
+//// for debugging output
 #ifdef VB
   #define LOGMSG mexPrintf
 #else
@@ -12,136 +16,160 @@ using namespace std;
 #endif // VB
 
 
-// "member" variables
-static thread  worker;
-static mxArray *X = 0;
-static mxArray *Y = 0;
-static char    filename[2048];
+//// mat loader: the worker
+struct loader {
+  // thread stuff
+  condition_variable cv_buf;
+  mutex              mt_buf;
+  bool               is_bufReady;
+  // mat file stuff
+  mxArray *X;
+  mxArray *Y;
+  char    filename[2048];
 
-// "member" functions
-void read_X_Y ();
-
-void clear_buf();
-
-void load_mat () 
-{
-  LOGMSG("In load_mat\n");
-
-  if (worker.joinable()) { // wait until last loading finishes...
-    worker.join(); 
-    LOGMSG("wait until last reading done\n");
+  loader () {
+    X = Y = 0;
+    is_bufReady = true;
   }
 
-  // clean the buffer
-  clear_buf();
+  void load_mat () 
+  {
+    LOGMSG("In load_mat\n");
 
-  // begin a new thread to load the variables
-  thread t(read_X_Y);
+    // begin a new thread to load the variables
+    thread t( &loader::read_X_Y, this );
 
-  // return immediately
-  worker = move(t);
+    // return immediately
+    t.detach();
 
-  LOGMSG("Out load_mat\n");
-}
-
-void pop_buf (mxArray* &xx, mxArray* &yy) {
-  LOGMSG("In pop_buf\n");
-
-  if (worker.joinable()) {
-    LOGMSG("wait until buffer filled\n");
-    worker.join();
+    LOGMSG("Out load_mat\n");
   }
 
-  // pop them
-  LOGMSG("deep copy\n");
+  void pop_buf (mxArray* &xx, mxArray* &yy) {
+    LOGMSG("In pop_buf\n");
 
-  mutex mm;
-  mm.lock();
+    unique_lock<mutex> lock_buf(mt_buf);
+    while (!is_bufReady) {
+      LOGMSG("wait until last reading done\n");
+      cv_buf.wait(lock_buf);
+    }
 
-  LOGMSG("copy X\n");
-  xx = mxDuplicateArray(X);
+    // pop them
+    LOGMSG("deep copy\n");
 
-  LOGMSG("copy Y\n");
-  yy = mxDuplicateArray(Y);
+    LOGMSG("copy X %p\n", X);
+    xx = mxDuplicateArray(X);
+    LOGMSG("output xx %p\n", xx);
 
-  mm.unlock();
+    LOGMSG("copy Y %p\n", Y);
+    yy = mxDuplicateArray(Y);
+    LOGMSG("output yy %p\n", yy);
 
-  LOGMSG("Out pop_buf\n");
-}
-
-void clear_buf () 
-{
-  LOGMSG("In clear_buf\n");
-
-  mutex mm;
-  mm.lock();
-
-  if (X!=0) {
-    LOGMSG("clear X\n");
-    mxDestroyArray(X);
-    X = 0;
+    LOGMSG("Out pop_buf\n");
   }
 
+  void clear_buf () 
+  {
+    LOGMSG("In clear_buf\n");
 
-  if (Y!=0) {
-    LOGMSG("clear Y\n");
-    mxDestroyArray(Y);
-    Y = 0;
+    if (X!=0) {
+      LOGMSG("clear X %p\n", X);
+      mxDestroyArray(X);
+      X = 0;
+    }
+
+    if (Y!=0) {
+      LOGMSG("clear Y %p\n", Y);
+      mxDestroyArray(Y);
+      Y = 0;
+    }
+
+    LOGMSG("Out clear_buf\n");
   }
 
-  mm.unlock();
+  void read_X_Y () {
+    LOGMSG("In read_X_Y\n"); 
 
-  LOGMSG("Out clear_buf\n");
-}
+    unique_lock<mutex> lock_buf(mt_buf);
+    while (!is_bufReady) {
+      LOGMSG("wait until last reading done\n");
+      cv_buf.wait(lock_buf);
+    }
 
-void read_X_Y () {
-  mutex mut;
-  mut.lock();
+    // clean the buffer
+    clear_buf();
 
-  LOGMSG("In read_X_Y\n"); 
+    LOGMSG("Set bufReady false\n"); 
+    is_bufReady = false;
 
-  LOGMSG("open mat %s\n", filename); 
-  MATFile *h = matOpen(filename, "r");
+    LOGMSG("open mat %s\n", filename); 
+    MATFile *h = matOpen(filename, "r");
 
-  LOGMSG("loading X from mat\n"); 
-  X = matGetVariable(h, "X"); // TODO: check 
+    LOGMSG("loading X from mat\n"); 
+    X = matGetVariable(h, "X"); // TODO: check 
+    LOGMSG("loaded %p\n", X);
 
-  LOGMSG("make persistence buffer X\n"); 
-  mexMakeArrayPersistent(X);
+    LOGMSG("make persistence buffer X\n"); 
+    mexMakeArrayPersistent(X);
 
-  LOGMSG("close mat %s\n", filename); 
-  matClose(h);
+    LOGMSG("close mat %s\n", filename); 
+    matClose(h);
 
-  LOGMSG("open mat %s\n", filename); 
-  h = matOpen(filename, "r");
+    LOGMSG("open mat %s\n", filename); 
+    h = matOpen(filename, "r");
 
-  LOGMSG("loading Y from mat\n"); 
-  Y = matGetVariable(h, "Y");
+    LOGMSG("loading Y from mat\n"); 
+    Y = matGetVariable(h, "Y");
+    LOGMSG("loaded %p\n", Y);
 
-  LOGMSG("make persistence buffer Y\n"); 
-  mexMakeArrayPersistent(Y);
+    LOGMSG("make persistence buffer Y\n"); 
+    mexMakeArrayPersistent(Y);
 
-  LOGMSG("close mat %s\n", filename); 
-  matClose(h);
+    LOGMSG("close mat %s\n", filename); 
+    matClose(h);
 
-  LOGMSG("Out read_X_Y\n"); 
+    LOGMSG("Set bufReady true\n"); 
+    is_bufReady = true;
 
-  mut.unlock();
-}
+    cv_buf.notify_all();
+
+    LOGMSG("Out read_X_Y\n"); 
+  }
+
+  //void wait_untilBufReady () {
+  //  if (!is_bufReady) {
+  //    LOGMSG("Wait until buffer ready\n");
+  //    int cnt = 0;
+  //    while (true) {
+  //      if (is_bufReady) 
+  //        break;
+  //      else {
+  //        if ( (cnt % 100000000) == 0 )
+  //          LOGMSG("cnt = %d\n", cnt);
+  //        cnt++;
+  //      }
+  //    }
+  //  }
+  //
+  //  return;
+  //}
+
+};
+
+//// the mat loader instance
+loader the_loader;
 
 void on_exit ()
 {
   LOGMSG("In on_exit\n");
 
-  if (worker.joinable()) {
+  // clean the buffer
+  unique_lock<mutex> lock_buf(the_loader.mt_buf);
+  while ( ! the_loader.is_bufReady ) {
     LOGMSG("wait until last reading done\n");
-    worker.join();
+    the_loader.cv_buf.wait(lock_buf);
   }
-
-  clear_buf();
-
-  // need this, or not?
-  // worker.~thread();
+  the_loader.clear_buf();
 
   LOGMSG("Out on_exit\n");
 }
@@ -156,22 +184,16 @@ void mexFunction(int no, mxArray       *vo[],
   if (ni==1) {
     LOGMSG("In ni==1\n");
 
-    if (worker.joinable()) { // wait until last loading finishes...
-      worker.join(); 
-      LOGMSG("wait until last reading done\n");
-    }
-    
-    mutex mx;
-    mx.lock();
     // get the file name 
     int buflen = mxGetN(vi[0])*sizeof(mxChar)+1;
     //char *filename  = (char*)mxMalloc(buflen);
     
-    mxGetString(vi[0], filename, buflen); // TODO: check status
-    mx.unlock();
+    mxGetString(vi[0], the_loader.filename, buflen); // TODO: check status
 
     // begin loading and return 
-    load_mat();
+    the_loader.load_mat();
+
+    // register the cleanup function
     mexAtExit( on_exit );
 
     LOGMSG("Out ni==1\n");
@@ -182,7 +204,7 @@ void mexFunction(int no, mxArray       *vo[],
   if (ni==0) {
     LOGMSG("In ni==0\n");
 
-    pop_buf(vo[0], vo[1]);
+    the_loader.pop_buf(vo[0], vo[1]);
 
     LOGMSG("Out ni==0\n");
     return;
