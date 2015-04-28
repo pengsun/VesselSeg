@@ -50,20 +50,20 @@ struct loader {
 
     unique_lock<mutex> lock_buf(mt_buf);
     while (!is_bufReady) {
-      LOGMSG("wait until last reading done\n");
+      LOGMSG("pop_buf: wait until last reading done\n");
       cv_buf.wait(lock_buf);
     }
 
     // pop them
-    LOGMSG("deep copy\n");
+    LOGMSG("pop_buf: deep copy\n");
 
-    LOGMSG("copy X %p\n", X);
+    LOGMSG("pop_buf: copy X %p\n", X);
     xx = mxDuplicateArray(X);
-    LOGMSG("output xx %p\n", xx);
+    LOGMSG("pop_buf: output xx %p\n", xx);
 
-    LOGMSG("copy Y %p\n", Y);
+    LOGMSG("pop_buf: copy Y %p\n", Y);
     yy = mxDuplicateArray(Y);
-    LOGMSG("output yy %p\n", yy);
+    LOGMSG("pop_buf: output yy %p\n", yy);
 
     LOGMSG("Out pop_buf\n");
   }
@@ -73,13 +73,13 @@ struct loader {
     LOGMSG("In clear_buf\n");
 
     if (X!=0) {
-      LOGMSG("clear X %p\n", X);
+      LOGMSG("clear_buf: clear X %p\n", X);
       mxDestroyArray(X);
       X = 0;
     }
 
     if (Y!=0) {
-      LOGMSG("clear Y %p\n", Y);
+      LOGMSG("clear_buf: clear Y %p\n", Y);
       mxDestroyArray(Y);
       Y = 0;
     }
@@ -92,43 +92,43 @@ struct loader {
 
     unique_lock<mutex> lock_buf(mt_buf);
     while (!is_bufReady) {
-      LOGMSG("wait until last reading done\n");
+      LOGMSG("read_X_Y: wait until last reading done\n");
       cv_buf.wait(lock_buf);
     }
 
     // clean the buffer
     clear_buf();
 
-    LOGMSG("Set bufReady false\n"); 
+    LOGMSG("read_X_Y: Set bufReady false\n"); 
     is_bufReady = false;
 
-    LOGMSG("open mat %s\n", filename); 
+    LOGMSG("read_X_Y: open mat %s\n", filename); 
     MATFile *h = matOpen(filename, "r");
 
-    LOGMSG("loading X from mat\n"); 
+    LOGMSG("read_X_Y: loading X from mat\n"); 
     X = matGetVariable(h, "X"); // TODO: check 
-    LOGMSG("loaded %p\n", X);
+    LOGMSG("read_X_Y: loaded %p\n", X);
 
-    LOGMSG("make persistence buffer X\n"); 
+    LOGMSG("read_X_Y: make persistence buffer X\n"); 
     mexMakeArrayPersistent(X);
 
-    LOGMSG("close mat %s\n", filename); 
+    LOGMSG("read_X_Y: close mat %s\n", filename); 
     matClose(h);
 
-    LOGMSG("open mat %s\n", filename); 
+    LOGMSG("read_X_Y: open mat %s\n", filename); 
     h = matOpen(filename, "r");
 
-    LOGMSG("loading Y from mat\n"); 
+    LOGMSG("read_X_Y: loading Y from mat\n"); 
     Y = matGetVariable(h, "Y");
-    LOGMSG("loaded %p\n", Y);
+    LOGMSG("read_X_Y: loaded %p\n", Y);
 
-    LOGMSG("make persistence buffer Y\n"); 
+    LOGMSG("read_X_Y: make persistence buffer Y\n"); 
     mexMakeArrayPersistent(Y);
 
-    LOGMSG("close mat %s\n", filename); 
+    LOGMSG("read_X_Y: close mat %s\n", filename); 
     matClose(h);
 
-    LOGMSG("Set bufReady true\n"); 
+    LOGMSG("read_X_Y: Set bufReady true\n"); 
     is_bufReady = true;
 
     cv_buf.notify_all();
@@ -166,7 +166,7 @@ void on_exit ()
   // clean the buffer
   unique_lock<mutex> lock_buf(the_loader.mt_buf);
   while ( ! the_loader.is_bufReady ) {
-    LOGMSG("wait until last reading done\n");
+    LOGMSG("on_exit: wait until last reading done\n");
     the_loader.cv_buf.wait(lock_buf);
   }
   the_loader.clear_buf();
