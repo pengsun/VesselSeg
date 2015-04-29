@@ -2,10 +2,10 @@ function err =  te_oneImg(varargin)
 %%% config 
 batch_sz = 1024; 
 dir_mo = 'D:\CodeWork\git\VesselSeg\mo_zoo';
-fn_mo = fullfile(dir_mo, '\slices3\ep_413.mat');
+fn_mo = fullfile(dir_mo, '\20M\ep_1000.mat');
 % instances, labels...
 name     = '01-001-MAP';
-dir_name = fullfile('D:\data\defactoSeg\', name);
+dir_name = fullfile('D:\data\defactoSeg2\', name);
 fn_mha   = fullfile(dir_name, 't.mha');        % the CT volume
 fn_fg    = fullfile(dir_name, 'maskv3.mha');   % the fore-ground
 fn_bg    = fullfile(dir_name, 'maskb.mha');    % the back-ground

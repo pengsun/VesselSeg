@@ -1,6 +1,6 @@
 classdef bdg_matInDirAsync < bdg_i
   %BDG_MATINDIRASYNC BDG for mat files 1.mat,...,M.mat in dir with
-  %prefetching by multithreading (asynchronous IO)
+  %prefetching by parfeval (asyncronous IO)
   %   TODO: checking when loading current mat
   %   TODO: prefetching when switching to new super epoch
   
@@ -13,6 +13,7 @@ classdef bdg_matInDirAsync < bdg_i
     i_mat; % the working mat id
     c_mat; % counting per mat
     h_bdg; % the underlying batch data generator
+    ff;    % Matlab parallel.future, for mat loading task
   end
   
   methods % implement the bdg_i interfaces
@@ -102,13 +103,14 @@ classdef bdg_matInDirAsync < bdg_i
       fn_mat  = [num2str( ob.matIds(cnt) ), '.mat'];
       fprintf('begin prefetching mat %s...\n', fn_mat);
       ffn_mat = fullfile( ob.dir_mat, fn_mat );
-      load_xy_async(ffn_mat);
+      
+      ob.ff = parfeval( @load_xy_, 2, ffn_mat);
     end % prefetch_mat
     
     function ob = fetch_cur_mat(ob)
       fprintf('loading mat %d from buffer...', ob.matIds(ob.i_mat));
       t = tic; % ---------------------------
-      [X,Y] = load_xy_async();
+      [X,Y] = fetchOutputs(ob.ff);
       % set the working bdg
       clear ob.h_bdg;
       ob.h_bdg = bdg_memXd4Yd2(X, Y, ob.bs);      
@@ -118,5 +120,10 @@ classdef bdg_matInDirAsync < bdg_i
     
   end % auxiliary 
 
-end
+end 
 
+function [X,Y] = load_xy_ (fn)
+  tmp = load(fn);
+  X = tmp.X;
+  Y = tmp.Y;
+end

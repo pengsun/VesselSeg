@@ -1,7 +1,7 @@
 function roc_oneImg()
 % 
 name     = '01-001-MAP';
-dir_name = fullfile('D:\data\defactoSeg\', name);
+dir_name = fullfile('D:\data\defactoSeg2\', name);
 fn_fg    = fullfile(dir_name, 'maskv3.mha');   % the fore-ground
 fn_bg    = fullfile(dir_name, 'maskb.mha');    % the back-ground
 fn_pre   = [name,'_pre_s.mha'];                % prediction score
