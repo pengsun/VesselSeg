@@ -15,7 +15,7 @@ switch str(1:3)
     opt{end+1} = 'LDFLAGS="\$LDFLAGS -fopenmp -std=c++11"';
 end
 %% do it
-mex(opt{:}, 'load_xy_async.cpp');
+% mex(opt{:}, 'load_xy_async.cpp');
 mex(opt{:}, 'get_x_3slices.cpp');
 mex(opt{:}, 'get_y_g27s2.cpp');
 % mex(opt{:}, 'toy.cpp');
